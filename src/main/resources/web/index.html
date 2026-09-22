@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Analisador HOMO-LUMO</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+<main>
+  <header class="topbar"><span class="brand"><span class="brand-icon">◎</span> Artigo<span class="brand-light">4</span></span><span class="local"><i></i> ANÁLISE LOCAL</span></header>
+  <section class="hero">
+    <div><p class="eyebrow">QUÍMICA COMPUTACIONAL / 01</p><h1>Analisador<br><span>HOMO-LUMO</span></h1><p class="subtitle">Análise de Estrutura Eletrônica</p><p class="description">Explore as energias dos orbitais de fronteira<br>e o gap eletrônico da sua molécula.</p></div>
+    <svg class="orbital" viewBox="0 0 320 260" aria-hidden="true"><g fill="none" stroke="currentColor"><ellipse cx="160" cy="128" rx="125" ry="45" transform="rotate(-35 160 128)"/><ellipse cx="160" cy="128" rx="125" ry="45" transform="rotate(35 160 128)"/><ellipse cx="160" cy="128" rx="45" ry="110"/><circle cx="160" cy="128" r="84" stroke-dasharray="3 7" opacity=".3"/></g><g fill="currentColor"><circle cx="160" cy="128" r="9"/><circle cx="254" cy="65" r="5"/><circle cx="67" cy="65" r="5"/><circle cx="164" cy="237" r="5"/></g></svg>
+  </section>
+  <section class="upload-panel" aria-labelledby="file-title">
+    <div class="section-heading"><h2 id="file-title"><span>01</span> Arquivo de saída</h2><span class="tag">GAUSSIAN</span></div>
+    <div class="upload-row"><div class="file-symbol" aria-hidden="true">↥</div><div class="file-info"><p id="file-label">Selecione seu arquivo Gaussian</p><strong id="filename">Nenhum arquivo selecionado</strong><p class="hint">Formatos aceitos: .out, .log e .txt</p></div><button id="choose" class="secondary" type="button">Selecionar arquivo</button><input id="file" type="file" accept=".out,.log,.txt" hidden></div>
+    <div class="action-row"><span class="privacy">Seus dados são processados neste computador.</span><button id="analyze" class="primary" type="button" disabled>ANALISAR <span aria-hidden="true">↗</span></button></div>
+  </section>
+  <section class="results" aria-labelledby="results-title" aria-busy="false">
+    <div class="section-heading"><h2 id="results-title"><span>02</span> Resultados da análise</h2><span class="precision">PRECISÃO · 6 CASAS DECIMAIS</span></div>
+    <div class="cards">
+      <article class="card"><div class="card-heading"><h3>HOMO</h3><span aria-hidden="true">↿⇂</span></div><p class="card-desc">Orbital ocupado de maior energia</p><p class="reading"><output id="homo">—</output><span>Hartree</span></p><div class="energy-line"></div></article>
+      <article class="card"><div class="card-heading"><h3>LUMO</h3><span aria-hidden="true">↥</span></div><p class="card-desc">Orbital desocupado de menor energia</p><p class="reading"><output id="lumo">—</output><span>Hartree</span></p><div class="energy-line"></div></article>
+      <article class="card gap"><div class="card-heading"><h3>GAP</h3><span aria-hidden="true">ΔE</span></div><p class="card-desc">Diferença de energia · LUMO − HOMO</p><p class="reading"><output id="gapHartree">—</output><span>Hartree</span></p><div class="energy-line"></div></article>
+      <article class="card ev"><div class="card-heading"><h3>GAP EM eV</h3><span aria-hidden="true">ΔE</span></div><p class="card-desc">Gap eletrônico em elétron-volts</p><p class="reading"><output id="gapEv">—</output><span>eV</span></p><div class="energy-line"></div></article>
+    </div>
+  </section>
+  <footer><p id="status" role="status" aria-live="polite"><i></i><span>Selecione um arquivo para iniciar.</span></p><span class="formula">ΔE = E<sub>LUMO</sub> − E<sub>HOMO</sub></span></footer>
+</main>
+<dialog id="error-dialog" aria-labelledby="error-title"><h2 id="error-title">Erro ao analisar arquivo</h2><p id="error-message"></p><form method="dialog"><button class="primary">Entendi</button></form></dialog>
+</body>
+</html>
