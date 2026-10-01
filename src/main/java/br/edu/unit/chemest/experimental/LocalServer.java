@@ -1,4 +1,6 @@
-package org.example;
+package br.edu.unit.chemest.experimental;
+import br.edu.unit.chemest.io.GaussianOutputParser;
+import br.edu.unit.chemest.model.OrbitalResult;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
@@ -15,7 +17,8 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 
 /** Local web interface. Uploaded data is streamed to disk, never buffered as a whole. */
-public final class LocalServer {
+public final class
+LocalServer {
     private String origin;
 
     public void start() throws IOException {
@@ -83,15 +86,15 @@ public final class LocalServer {
         try {
             temporary = Files.createTempFile("homo-lumo-", ".out");
             Files.copy(exchange.getRequestBody(), temporary, StandardCopyOption.REPLACE_EXISTING);
-            Resultado result = HomoLumoAnalyzer.analisarArquivo(temporary.toString());
+            OrbitalResult result = new GaussianOutputParser().parse(temporary);
             // JSON cannot represent infinities; the scientific parser remains unchanged.
-            if (!Double.isFinite(result.homo()) || !Double.isFinite(result.lumo())
+            if (!Double.isFinite(result.homoHartree()) || !Double.isFinite(result.lumoHartree())
                     || !Double.isFinite(result.gapHartree()) || !Double.isFinite(result.gapEv())) {
                 throw new NumberFormatException();
             }
             reply(exchange, 200, "application/json", String.format(Locale.ROOT,
                     "{\"homo\":%.12f,\"lumo\":%.12f,\"gapHartree\":%.12f,\"gapEv\":%.12f}",
-                    result.homo(), result.lumo(), result.gapHartree(), result.gapEv()));
+                    result.homoHartree(), result.lumoHartree(), result.gapHartree(), result.gapEv()));
         } catch (NumberFormatException e) {
             reply(exchange, 400, "text/plain", "O arquivo contém valores de energia inválidos.");
         } catch (IllegalArgumentException e) {
@@ -110,3 +113,4 @@ public final class LocalServer {
         exchange.getResponseBody().write(bytes);
     }
 }
+
