@@ -29,10 +29,10 @@ class SwingSmokeTest {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless(),"Requer ambiente gráfico.");
         App.main(new String[0]);
         await(()->java.util.Arrays.stream(Window.getWindows()).anyMatch(w->w instanceof MainFrame && w.isShowing()));
-        MainFrame frame=edt(()->(MainFrame)java.util.Arrays.stream(Window.getWindows()).filter(w->w instanceof MainFrame).findFirst().orElseThrow());
+        MainFrame frame=edt(()->(MainFrame)java.util.Arrays.stream(Window.getWindows()).filter(w->w instanceof MainFrame && w.isShowing()).findFirst().orElseThrow());
         try {
             assertEquals(5,edt(()->find(frame,JTabbedPane.class).getFirst().getTabCount()));
-            JButton validate=edt(()->find(frame,JButton.class).stream().filter(b->b.getText().equals("Validar")).findFirst().orElseThrow());
+            JButton validate=edt(()->find(frame,JButton.class).stream().filter(b->b.getText().equals("Validar SMILES")).findFirst().orElseThrow());
             JTextField smiles=edt(()->find(frame,JTextField.class).stream().filter(t->t.getText().equals("CCO")).findFirst().orElseThrow());
             edt(()->{validate.doClick();return null;});
             await(()->validate.isEnabled() && find(frame,JLabel.class).stream().anyMatch(l->l.getIcon() instanceof ImageIcon));

@@ -1,0 +1,123 @@
+{
+  "status": "OK",
+  "validation": "Relatórios Surefire e JAR existentes inspecionados; este script não executa Maven",
+  "tests": {
+    "tests": 51,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suites": [
+    {
+      "name": "br.edu.unit.chemest.BatchTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "br.edu.unit.chemest.CoordinatesAndInputTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "br.edu.unit.chemest.GaussianOutputParserTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "br.edu.unit.chemest.IoRegressionTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "br.edu.unit.chemest.ModelAndAnalysisTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "br.edu.unit.chemest.ParserRegressionTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "br.edu.unit.chemest.ReportTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "br.edu.unit.chemest.SmilesServiceTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "br.edu.unit.chemest.SwingRegressionTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "br.edu.unit.chemest.SwingSmokeTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "jar": "target/chemest-java-1.0-SNAPSHOT.jar",
+  "jar_sha256": "480ebb8823df4dcb6862271aedb04672e575021e993fcf5b7c85951384bdeb7a",
+  "changed_files": [
+    "README.md",
+    "docs/MIGRATION.md",
+    "run.ps1",
+    "src/main/java/br/edu/unit/chemest/App.java",
+    "src/main/java/br/edu/unit/chemest/experimental/LocalServer.java",
+    "src/main/java/br/edu/unit/chemest/io/CsvMoleculeReader.java",
+    "src/main/java/br/edu/unit/chemest/io/GaussianBatchWriter.java",
+    "src/main/java/br/edu/unit/chemest/io/GaussianInputWriter.java",
+    "src/main/java/br/edu/unit/chemest/io/GaussianOutputParser.java",
+    "src/main/java/br/edu/unit/chemest/io/ResultCsvWriter.java",
+    "src/main/java/br/edu/unit/chemest/model/Atom3D.java",
+    "src/main/java/br/edu/unit/chemest/report/HtmlReportWriter.java",
+    "src/main/java/br/edu/unit/chemest/service/BatchGenerationService.java",
+    "src/main/java/br/edu/unit/chemest/service/FileCoordinateProvider.java",
+    "src/main/java/br/edu/unit/chemest/ui/MainFrame.java",
+    "src/main/resources/web/app.js",
+    "src/main/resources/web/index.html",
+    "src/main/resources/web/styles.css",
+    "src/test/java/br/edu/unit/chemest/SwingSmokeTest.java"
+  ],
+  "scope": "Varredura de padrões de segredos e caminhos pessoais nas novas entradas, saídas e evidências; não é auditoria de segurança exaustiva.",
+  "files": {
+    "README.md": "47b207e39bfbecb4c0231e577f8e27131ca7d7f581b8a934e80ffd5777b1b5d6",
+    "pom.xml": "a7ddfb3cf2ad7a4493ffc1c130aac33b1b60e2f6f92dd8de69099249fb8c0ddb",
+    "src/test/resources/gaussian_sample.out": "599654784498e77b85959dd47f5e4c0dc8847316d2fab9a415ef5e5119c9bcbc",
+    "data/exemplos/etanol.xyz": "2c4477463c1558c9818130809e9b96cc5bff3ba14254923b7e77c2afb3fbaef4",
+    "data/exemplos/1.xyz": "2c4477463c1558c9818130809e9b96cc5bff3ba14254923b7e77c2afb3fbaef4",
+    "data/exemplos/moleculas.csv": "019dd8d199ca010f3e774685f86c5ed03fafa1b5d568b07dd4bad59a769ed8fe",
+    "data/exemplos/gaussian_sample.out": "b19ea87132052f936bafe1e153f7d823bf9e4d9bd549350ccf2a771542464bfd",
+    "resultados/exemplo.gjf": "b8d2611aa3216d1c57075486ba9633621f35b899d3e25a93dbde29a01e572dc1",
+    "resultados/exemplo.bcf": "ff510be655ae239c13c1e8190b4305fa90541d897a763bbcdaeb848bf5f212d0",
+    "resultados/resultados.csv": "392323c6f69b4ef27fe8d2008809923a643e3b807e71bc0c57b89665b819ab87",
+    "resultados/relatorio.html": "173669cb8ef4108dcc341391af74a4cf02f32f6b67d6e600f366a40fb63e3068",
+    "docs/MIGRATION.md": "c708ba9f0541fcbdba7983be71635a5c4f7edb3285783816336762cd8969fff0",
+    "docs/relatorio_tecnico.md": "f8f076d64552c1b5e01ce527ff1fe4ed0b8ee2a48ad1669ce99e702a1639930b",
+    "docs/relatorio_tecnico.pdf": "c9821e5bda5acbdac63dc704a30c960fb21ba30a1f2774d683490ac631936838",
+    "docs/comparacao_python_java.csv": "3de58d133837eca2e6c83a2173a854e60da2067fac4bd8a48500a769f83569cc"
+  }
+}

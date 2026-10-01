@@ -1,0 +1,22 @@
+{
+  "python": "3.14.6",
+  "sample_sha256": "b19ea87132052f936bafe1e153f7d823bf9e4d9bd549350ccf2a771542464bfd",
+  "tolerance_hartree": 1e-08,
+  "python_values": [
+    -0.25,
+    -0.05,
+    0.2
+  ],
+  "java_values": [
+    -0.25,
+    -0.05,
+    0.2
+  ],
+  "absolute_differences": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "status": "OK",
+  "scope": "Referencia independente equivalente ao roteiro, em uma amostra sintetica; nao autentica todo o codigo do artigo."
+}

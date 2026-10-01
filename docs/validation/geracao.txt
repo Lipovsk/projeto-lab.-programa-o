@@ -1,0 +1,12 @@
+Gerador: docs/validation/GenerateDelivery.java
+Java: 21.0.12
+Amostra: data\exemplos\gaussian_sample.out
+SHA256 amostra: b19ea87132052f936bafe1e153f7d823bf9e4d9bd549350ccf2a771542464bfd
+XYZ aceito pelo FileCoordinateProvider: 9 atomos (C2H6O)
+CSV: 2 registros validos
+Lote: 1 GJF gerado (etanol); 1 falha esperada (2.xyz ausente)
+HOMO=-0.250000000000
+LUMO=-0.050000000000
+gapHartree=0.200000000000
+gapEv=5.442277249197600
+BCF: gerado por GaussianBatchWriter; caminhos relativizados pelo runner; execucao Gaussian NAO VALIDADA

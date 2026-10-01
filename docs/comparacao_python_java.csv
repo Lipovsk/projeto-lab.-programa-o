@@ -1,0 +1,2 @@
+arquivo,homo_python,lumo_python,gap_python,homo_java,lumo_java,gap_java,diferenca_homo,diferenca_lumo,diferenca_gap,status
+data/exemplos/gaussian_sample.out,-0.25,-0.05,0.2,-0.25,-0.05,0.2,0.0,0.0,0.0,OK

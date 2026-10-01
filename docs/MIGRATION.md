@@ -1,5 +1,7 @@
 # Análise e inventário da migração
 
+Este documento registra a migração histórica. Posteriormente, a interface web experimental foi removida: o servidor `experimental/LocalServer.java`, os três recursos de `src/main/resources/web/` e as opções de execução `--web` e `-Web` não fazem mais parte da aplicação. A interface atual é Swing; a exportação de relatório HTML foi preservada.
+
 ## Antes das alterações
 
 Arquivos funcionais encontrados:

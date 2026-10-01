@@ -47,21 +47,19 @@ br.edu.unit.chemest
 ├── service
 ├── io
 ├── report
-├── ui
-└── experimental
+└── ui
 ```
 
 | Componente | Responsabilidade |
 |---|---|
-| `App` | Inicia Swing ou, com `--web`, o servidor experimental |
+| `App` | Inicia a interface Swing |
 | `model` | Dados e invariantes: átomos, moléculas, configuração e resultados |
 | `service` | Validação SMILES, leitura de geometria e coordenação de análise/lotes |
 | `io` | Leitura CSV/OUT e escrita GJF, BCF e CSV de resultados |
 | `report` | Geração do relatório HTML |
 | `ui` | `MainFrame`, componentes Swing e eventos |
-| `experimental` | `LocalServer`, responsável pela interface web opcional |
 
-Os testes ficam em `src/test/java/br/edu/unit/chemest/`; a amostra Gaussian está em `src/test/resources/gaussian_sample.out`. Os recursos web permanecem em `src/main/resources/web/`. O histórico da migração está em [docs/MIGRATION.md](docs/MIGRATION.md).
+Os testes ficam em `src/test/java/br/edu/unit/chemest/`; a amostra Gaussian está em `src/test/resources/gaussian_sample.out`. O histórico da migração está em [docs/MIGRATION.md](docs/MIGRATION.md).
 
 ## Como executar no IntelliJ IDEA
 
@@ -128,7 +126,7 @@ NUM,SMILES
 
 A tabela informa o status individual; o resumo mostra processados, gerados e falhas. Registros inválidos ou sem geometria não impedem os demais. O lote não sobrescreve GJFs existentes.
 
-`NUM` aceita letras ASCII, números, hífen e sublinhado; duplicatas são rejeitadas sem distinção entre maiúsculas e minúsculas. Um CSV estruturalmente ilegível, por exemplo com aspas não fechadas, interrompe a importação.
+`NUM` aceita letras ASCII, números, hífen e sublinhado; duplicatas são rejeitadas sem distinção entre maiúsculas e minúsculas. Nomes reservados pelo Windows, como `CON` e `LPT1`, são rejeitados por registro. CSV UTF-8 com BOM é aceito; cabeçalhos repetidos são rejeitados. Um CSV estruturalmente ilegível, por exemplo com aspas não fechadas, interrompe a importação.
 
 O BCF inclui apenas arquivos regulares `.gjf`, ordenados pelo nome, e começa com:
 
@@ -155,7 +153,9 @@ Clique em **Selecionar OUT**, escolha um ou mais arquivos `.out`, `.log` ou `.tx
 
 Os resultados são acrescentados à tabela. Falhas de um arquivo são registradas no Log e não interrompem os demais.
 
-**Exportar CSV** grava `arquivo,HOMO,LUMO,gapHartree,gapEv`, com ponto decimal e escape de campos pelo Commons CSV. **Exportar relatório HTML** permite incluir observações e gera um documento que abre diretamente no navegador, sem servidor.
+Cada clique em **ANALISAR** substitui a tabela pelos resultados dos arquivos selecionados, evitando duplicatas de análises anteriores. Se todos falharem, a tabela e os indicadores ficam vazios. Falhas de análise ou lote aparecem no resumo e no status, sem indicação verde de sucesso total.
+
+**Exportar CSV** grava `arquivo,HOMO,LUMO,gapHartree,gapEv`, com ponto decimal e escape de campos pelo Commons CSV. A exportação CSV não depende dos campos da configuração Gaussian. **Exportar relatório HTML** permite incluir observações e gera um documento que abre diretamente no navegador, sem servidor.
 
 O HTML contém data, origem, resultados e configuração atual da interface, com textos escapados. Essa configuração é uma referência para gerar entradas: **não é extraída dos arquivos OUT** nem comprova os parâmetros dos cálculos analisados. Na implementação atual, ambas as exportações passam pela validação dos campos de configuração.
 
@@ -174,7 +174,7 @@ Alpha virt. eigenvalues --
 
 A cada linha ocupada, atualiza o HOMO temporário com o **último valor**. Na primeira linha virtual correspondente, usa o **primeiro valor** como LUMO e guarda o par completo. Linhas virtuais de continuação não substituem esse LUMO.
 
-O resultado é o **último par Alpha completo** encontrado. Um bloco ocupado incompleto no final não substitui um par anterior completo. Se nenhum par completo existir, lança `GaussianParseException`; valores inválidos também são rejeitados. Problemas reais de arquivo usam `IOException`.
+O parser aceita variações de espaços e notação `D`/`d`, valida todas as energias nas linhas utilizadas e exige linhas ocupadas/virtuais consecutivas; uma linha de outro bloco interrompe o pareamento pendente. O resultado é o **último par Alpha completo** encontrado. Um bloco ocupado incompleto no final não substitui um par anterior completo. Se nenhum par completo existir, lança `GaussianParseException`; valores inválidos também são rejeitados. Problemas reais de arquivo usam `IOException`.
 
 `OrbitalResult` calcula:
 
@@ -225,10 +225,13 @@ No Windows, também é possível usar `.\run.ps1 -Test`.
 | `CoordinatesAndInputTest` | XYZ, coordenadas ausentes/não finitas, geometria planar, bloqueio sem geometria e formato GJF com ponto decimal |
 | `BatchTest` | CSV por nome de coluna, validação individual, duplicatas, geração em lote, proteção contra sobrescrita e ordenação/filtro BCF |
 | `ModelAndAnalysisTest` | Configuração, imutabilidade dos átomos e continuidade da análise após erro |
+| `IoRegressionTest` | BOM CSV/XYZ, cabeçalhos repetidos, nomes Windows, linhas inválidas, falhas de gravação, publicação sem sobrescrita e destinos BCF |
+| `ParserRegressionTest` | Espaçamento, expoentes D/d, separação de blocos e valores inválidos no interior de linhas |
+| `SwingRegressionTest` | Reanálise sem duplicatas, status de falha, janela fechada e exportação CSV com configuração incompleta |
 | `ReportTest` | Exportação CSV, valores numéricos, escape HTML e falha de gravação |
 | `SwingSmokeTest` | Inicialização de App, cinco abas, CCO, diálogo de SMILES inválido e recuperação da interface |
 
-As comparações numéricas usam tolerância `1e-8`. Os relatórios Maven locais consultados em `target/surefire-reports/` registram **29 testes, sem falhas, erros ou pulos**, na execução anterior. Essa evidência não representa uma nova execução nesta revisão documental.
+As comparações numéricas usam tolerância `1e-8`. A revisão de 01/10/2026 executou `mvn -B clean test package`: **51 testes, sem falhas, erros ou pulos**, incluindo os testes gráficos Swing. O estado inicial tinha 29 testes aprovados; foram acrescentados 22 testes de regressão.
 
 O smoke test requer ambiente gráfico e é explicitamente pulado em modo headless. Ele salva `target/swing-smoke.png`. Os testes não automatizam todos os diálogos de seleção nem executam Gaussian ou verificam o relatório em navegador.
 
@@ -250,18 +253,6 @@ O artefato gerado é `target/chemest-java-1.0-SNAPSHOT.jar`. O `pom.xml` produz 
 - Importação SDF e busca PubChem, previstas como possibilidades opcionais no roteiro, **não estão implementadas**.
 - BCF é gerado e possui testes estruturais; sua execução em Gaussian licenciado **não foi validada**.
 - Resultados e log permanecem em memória durante a sessão; exporte os resultados antes de fechar.
-
-## Interface web experimental
-
-A interface HTML/CSS/JavaScript foi preservada em `src/main/resources/web/`, com `LocalServer` no pacote `experimental`. **Swing é a interface principal.** O modo web oferece a análise HOMO/LUMO, enquanto o relatório HTML é uma saída independente.
-
-```sh
-mvn compile exec:java "-Dexec.args=--web"
-```
-
-No PowerShell: `.\run.ps1 -Web`. O suporte ao argumento `--web` está implementado em `App`.
-
-O servidor usa `127.0.0.1` e uma porta disponível; tenta abrir o navegador e informa o endereço no terminal. O upload é gravado em fluxo em arquivo temporário, analisado pelo mesmo parser e removido ao final. Encerre a execução Java para parar o servidor.
 
 ## Organização acadêmica
 
@@ -286,3 +277,7 @@ DOI: [10.1021/acs.jchemed.4c01171](https://doi.org/10.1021/acs.jchemed.4c01171).
 ## Observação final
 
 Este projeto tem finalidade acadêmica. Java atua como camada de preparação, organização e análise de dados; Gaussian/PySCF são ferramentas externas responsáveis pelo cálculo científico.
+
+### Gravação de arquivos
+
+GJF, BCF, CSV de resultados e HTML são preparados em arquivo temporário na pasta de destino e publicados somente após a gravação completa. A substituição usa movimentação atômica quando suportada pelo sistema de arquivos; há alternativa sem garantia de atomicidade quando não suportada. O lote publica sem substituir GJFs existentes. BCF não pode usar como destino uma entrada GJF ou saída OUT incluída no lote. Ao fechar a janela, uma operação já iniciada pode terminar de gravar arquivos, mas sua conclusão não atualiza a janela nem abre diálogos.

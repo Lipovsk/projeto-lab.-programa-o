@@ -1,4 +1,4 @@
-param([switch]$Test, [switch]$Web)
+param([switch]$Test)
 $ErrorActionPreference = 'Stop'
 Push-Location $PSScriptRoot
 try {
@@ -12,7 +12,6 @@ try {
         $mavenPath = $bundledMaven.FullName
     }
     if ($Test) { & $mavenPath test }
-    elseif ($Web) { & $mavenPath compile exec:java '-Dexec.args=--web' }
     else { & $mavenPath compile exec:java }
     if ($LASTEXITCODE -ne 0) { throw 'A execução Maven falhou. Consulte a saída acima.' }
 } finally { Pop-Location }

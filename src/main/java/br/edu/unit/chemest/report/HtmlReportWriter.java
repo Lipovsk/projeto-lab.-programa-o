@@ -25,7 +25,7 @@ public final class HtmlReportWriter {
         html.append("</tbody></table><h2>Observações</h2><pre>").append(escape(observations)).append("</pre>")
             .append("<p>Último par Alpha completo. Conversão: 1 Hartree = 27.211386245988 eV. A presença de orbitais não comprova convergência ou término normal do cálculo.</p>")
             .append("<p>Java prepara e analisa dados. Gaussian/PySCF executam os cálculos quânticos externamente.</p></html>");
-        try { Files.writeString(destination,html); }
+        try { br.edu.unit.chemest.io.SafeFileWriter.write(destination,true,writer -> writer.write(html.toString())); }
         catch(IOException e){throw new ReportWriteException("Falha ao gravar o relatório HTML.",e);}
     }
     private static String escape(String text) {

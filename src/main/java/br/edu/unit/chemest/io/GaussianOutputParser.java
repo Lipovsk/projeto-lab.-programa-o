@@ -3,8 +3,10 @@ import br.edu.unit.chemest.model.OrbitalResult;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-/** Adaptação do analisador original: leitura em fluxo e último par Alpha completo. */
+import java.util.regex.Pattern;
+/** Leitura em fluxo: último bloco Alpha ocupado/virtual completo, sem cruzar outros blocos. */
 public final class GaussianOutputParser {
+    private static final Pattern ORBITALS = Pattern.compile("^\\s*Alpha\\s+(occ\\.|virt\\.)\\s+eigenvalues\\s*--\\s*(.*?)\\s*$");
     public OrbitalResult parse(Path file) throws IOException {
         if (!Files.isRegularFile(file)) throw new IOException("O arquivo informado não existe ou não é um arquivo regular.");
         double homoFinal = Double.NaN, lumoFinal = Double.NaN, homoTemporario = Double.NaN;
@@ -12,13 +14,14 @@ public final class GaussianOutputParser {
         try (BufferedReader leitor = Files.newBufferedReader(file, StandardCharsets.ISO_8859_1)) {
             String linha;
             while ((linha = leitor.readLine()) != null) {
-                if (linha.contains("Alpha  occ. eigenvalues --")) {
-                    homoTemporario = number(linha, true);
+                var orbital = ORBITALS.matcher(linha);
+                if (!orbital.matches()) { aguardandoLumo = false; continue; }
+                if (orbital.group(1).equals("occ.")) {
+                    homoTemporario = number(orbital.group(2), true);
                     aguardandoLumo = true;
-                } else if (linha.contains("Alpha virt. eigenvalues --") && aguardandoLumo) {
-                    double lumo = number(linha, false);
+                } else if (aguardandoLumo) {
+                    lumoFinal = number(orbital.group(2), false);
                     homoFinal = homoTemporario;
-                    lumoFinal = lumo;
                     aguardandoLumo = false;
                 }
             }
@@ -27,12 +30,16 @@ public final class GaussianOutputParser {
             throw new GaussianParseException("Não foi possível extrair HOMO e LUMO: bloco Alpha ausente ou incompleto.");
         return new OrbitalResult(homoFinal, lumoFinal);
     }
-    private static double number(String line, boolean last) {
-        String[] values = line.substring(line.indexOf("--") + 2).trim().split("\\s+");
+    private static double number(String energies, boolean last) {
+        String[] values = energies.split("\\s+");
+        double selected = Double.NaN;
         try {
-            double n = Double.parseDouble(values[last ? values.length - 1 : 0].replace('D', 'E'));
-            if (!Double.isFinite(n)) throw new NumberFormatException();
-            return n;
+            for(int i=0;i<values.length;i++) {
+                double n = Double.parseDouble(values[i].replace('D', 'E').replace('d', 'E'));
+                if (!Double.isFinite(n)) throw new NumberFormatException();
+                if(i == (last ? values.length-1 : 0)) selected = n;
+            }
+            return selected;
         } catch (NumberFormatException e) {
             throw new GaussianParseException("O arquivo contém valores de energia inválidos.");
         }

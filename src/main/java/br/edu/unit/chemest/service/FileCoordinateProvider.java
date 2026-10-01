@@ -10,6 +10,7 @@ public final class FileCoordinateProvider implements CoordinateProvider {
             throw new CoordinateException("Selecione um arquivo XYZ com x, y e z explícitos, em angstroms.");
         try (BufferedReader reader=Files.newBufferedReader(source)) {
             String first=reader.readLine();
+            if(first!=null && first.startsWith("\uFEFF"))first=first.substring(1);
             int count;
             try { count=Integer.parseInt(first == null ? "" : first.trim()); }
             catch (NumberFormatException e) { throw new CoordinateException("XYZ inválido: informe a quantidade de átomos na primeira linha."); }
