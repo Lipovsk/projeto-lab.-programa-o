@@ -1,73 +1,119 @@
 # ChemEST Java
 
-Aplicativo Java 21 com interface principal **Swing**, baseado no trabalho “Integrating Electronic Structure Theory Calculations with Python and Cheminformatics Tools”.
+O **ChemEST Java** é uma aplicação acadêmica em **Java 21**, baseada no artigo *“Integrating Electronic Structure Theory Calculations with Python and Cheminformatics Tools”*. O Java prepara entradas, organiza lotes e analisa resultados; **Gaussian/PySCF continuam responsáveis pelos cálculos quânticos externos**. O projeto não reimplementa DFT ou Hartree-Fock.
 
-O Java prepara entradas, organiza lotes e analisa energias de orbitais. **Não implementa nem executa DFT/Hartree–Fock. Gaussian/PySCF são responsáveis pelo cálculo quântico externo.** A leitura de saída implementada aqui é específica dos blocos Alpha do Gaussian; saídas PySCF não são interpretadas automaticamente.
+## Objetivo
 
-## Requisitos e instalação
+Adaptar partes do fluxo original em Python para uma aplicação Java que permita validar SMILES, importar geometria 3D, gerar arquivos Gaussian, analisar suas saídas, extrair energias HOMO/LUMO, calcular o gap e exportar resultados. A integração implementada concentra-se em arquivos Gaussian; não há execução nem interpretação automática de saídas PySCF.
 
-- JDK **21** e Maven 3.9 ou compatível.
-- Ambiente gráfico para Swing.
-- Internet na primeira compilação para resolver dependências.
-- Abra a pasta do projeto ou seu `pom.xml` como projeto Maven.
-- Não é necessário instalar Gaussian para compilar, testar ou analisar a amostra sintética.
+## Funcionalidades
 
-Dependências solicitadas e utilizadas, sem substituições:
+- Interface principal em **Java Swing**, com cinco abas: **Molécula**, **Entrada Gaussian**, **Lote**, **Análise** e **Log**.
+- Validação de SMILES com CDK e representação molecular 2D.
+- Importação de coordenadas XYZ e geração de arquivos `.gjf`.
+- Leitura de CSV com colunas `NUM` e `SMILES`, validação por registro e geração de GJF em lote.
+- Geração de BCF com os arquivos GJF da pasta, ordenados.
+- Análise de arquivos `.out`, `.log` e `.txt` que contenham os padrões Gaussian reconhecidos.
+- Extração de HOMO/LUMO do último par Alpha completo, cálculo do gap em Hartree e conversão para eV.
+- Exportação de resultados em CSV e relatório HTML independente de servidor.
+- Tratamento de erros com mensagens compreensíveis e logs das operações.
+- Uso de `SwingWorker` para executar leitura, desenho, geração e exportação em segundo plano, mantendo a interface responsiva.
 
-| Biblioteca | Coordenada Maven | Versão |
+## Tecnologias
+
+| Tecnologia | Versão/configuração no projeto | Uso |
 |---|---|---|
-| CDK | org.openscience.cdk:cdk-bundle | 2.13 |
-| Apache Commons CSV | org.apache.commons:commons-csv | 1.14.1 |
-| JUnit 5 | org.junit.jupiter:junit-jupiter | 5.13.4 |
+| Java | 21 | Linguagem e ambiente de execução |
+| Maven | Projeto `br.edu.unit:chemest-java:1.0-SNAPSHOT` | Compilação, dependências e testes |
+| Java Swing | Incluído no JDK | Interface principal |
+| CDK | `org.openscience.cdk:cdk-bundle:2.13` | SMILES e desenho 2D |
+| Apache Commons CSV | `org.apache.commons:commons-csv:1.14.1` | Leitura e exportação CSV |
+| JUnit 5 | `org.junit.jupiter:junit-jupiter:5.13.4` | Testes automatizados |
 
-Identificação: `br.edu.unit:chemest-java:1.0-SNAPSHOT`.
+As três dependências usam exatamente as versões previstas no roteiro. O `pom.xml` configura Maven Compiler Plugin **3.14.0**, Surefire **3.5.4** e Exec Maven Plugin **3.5.1**; não fixa a versão da distribuição Maven.
 
-## Executar
+Para executar, tenha JDK 21, Maven disponível e ambiente gráfico. A primeira resolução de dependências requer internet. Gaussian não é necessário para compilar, testar ou analisar a amostra sintética.
 
-Na pasta do projeto:
+Documentação técnica: [CDK DepictionGenerator](https://cdk.github.io/cdk/latest/docs/api/org/openscience/cdk/depict/DepictionGenerator.html) e [Apache Commons CSV](https://commons.apache.org/proper/commons-csv/apidocs/org/apache/commons/csv/CSVFormat.html).
+
+## Estrutura do projeto
+
+Fontes principais em `src/main/java/`:
+
+```text
+br.edu.unit.chemest
+├── App
+├── model
+├── service
+├── io
+├── report
+├── ui
+└── experimental
+```
+
+| Componente | Responsabilidade |
+|---|---|
+| `App` | Inicia Swing ou, com `--web`, o servidor experimental |
+| `model` | Dados e invariantes: átomos, moléculas, configuração e resultados |
+| `service` | Validação SMILES, leitura de geometria e coordenação de análise/lotes |
+| `io` | Leitura CSV/OUT e escrita GJF, BCF e CSV de resultados |
+| `report` | Geração do relatório HTML |
+| `ui` | `MainFrame`, componentes Swing e eventos |
+| `experimental` | `LocalServer`, responsável pela interface web opcional |
+
+Os testes ficam em `src/test/java/br/edu/unit/chemest/`; a amostra Gaussian está em `src/test/resources/gaussian_sample.out`. Os recursos web permanecem em `src/main/resources/web/`. O histórico da migração está em [docs/MIGRATION.md](docs/MIGRATION.md).
+
+## Como executar no IntelliJ IDEA
+
+1. Use **File → Open**, selecione `pom.xml` e abra como projeto Maven.
+2. Em **File → Project Structure**, selecione **JDK 21** e language level 21. Configure também o Maven Runner para usar esse JDK.
+3. No painel **Maven**, clique em **Reload All Maven Projects** e aguarde as dependências.
+4. Abra `br.edu.unit.chemest.App`, em `src/main/java/br/edu/unit/chemest/App.java`.
+5. Execute o método `main` pelo triângulo verde, sem argumentos.
+
+No terminal, na pasta do projeto:
 
 ```sh
 mvn compile exec:java
 ```
 
-No Windows também é possível usar `.\run.ps1`. O script procura Maven no PATH e, se necessário, o Maven integrado ao IntelliJ sob Program Files/JetBrains. Não contém caminhos pessoais fixos.
+No PowerShell, use também `.\run.ps1`. O script procura Maven no PATH e, como alternativa, na instalação do IntelliJ sob `Program Files/JetBrains`, sem caminho pessoal fixo.
 
-### IntelliJ IDEA — passo a passo
+## Como usar a aplicação
 
-1. **File → Open**: selecione `pom.xml` e abra como projeto.
-2. **File → Project Structure → Project SDK**: selecione um JDK 21; defina o language level como 21.
-3. No painel **Maven**, clique em **Reload All Maven Projects** e aguarde as dependências.
-4. Abra `src/main/java/br/edu/unit/chemest/App.java`.
-5. Clique no triângulo verde ao lado de `main` e selecione **Run 'App.main()'**, sem argumentos.
-6. Para testes, execute **Maven → Lifecycle → test**; para empacotar, **package**.
+### Molécula
 
-O Maven Runner também deve usar JDK 21. A classe principal mudou de `org.example.Main` para `br.edu.unit.chemest.App`.
+1. Informe o nome e um SMILES, como `CCO` (etanol).
+2. Clique em **Validar** para visualizar a estrutura 2D. `c1ccccc1` é um exemplo aromático; `C1(` é inválido e provoca uma mensagem de erro.
+3. Clique em **Importar coordenadas XYZ** e selecione a geometria correspondente.
 
-## Fluxo de uso
+**Representação 2D não é geometria 3D.** O desenho do CDK não fornece as coordenadas utilizadas no GJF. Alterar o SMILES descarta a associação anterior de geometria, exigindo nova importação.
 
-### MOLÉCULA e ENTRADA GAUSSIAN
+O XYZ deve conter quantidade positiva de átomos, uma linha de comentário (pode estar vazia) e uma linha `símbolo x y z` por átomo. Forneça um único conjunto de coordenadas, em **angstroms**, com números finitos e símbolos químicos válidos. Inclua todos os átomos necessários, inclusive hidrogênios.
 
-1. Digite um nome e `CCO` em SMILES, depois clique **Validar**: o CDK representa o etanol em 2D.
-2. `c1ccccc1` é um exemplo aromático. `C1(` deve mostrar um aviso sem encerrar o aplicativo.
-3. Importe um `.xyz` com a geometria desejada. Alterar o SMILES descarta a associação anterior de coordenadas.
-4. Na aba ENTRADA GAUSSIAN, configure método, base, tarefa, carga, multiplicidade, memória e processadores.
-5. Clique **Gerar GJF** e escolha o destino.
+Geometrias explicitamente planares são aceitas, mesmo com todos os valores z iguais a zero. O programa não preenche coordenadas ausentes nem verifica se o XYZ corresponde quimicamente ao SMILES.
 
-Os valores iniciais são B3LYP/6-31G(d), Opt, carga 0, multiplicidade 1, 2GB e 2 processadores. São valores editáveis de exemplo, não uma recomendação para todos os sistemas.
+### Entrada Gaussian
 
-**Desenho 2D não é geometria 3D.** O CDK desenha ligações para visualização; essas posições não são usadas para gerar GJF. Sem XYZ importado, a geração é bloqueada. O importador exige:
+Ajuste os parâmetros antes de clicar em **Gerar GJF**:
 
-- Número positivo de átomos na primeira linha.
-- Uma segunda linha de comentário, que pode estar vazia.
-- Uma linha `símbolo x y z` por átomo, com três números finitos em **angstroms**.
-- Um único conjunto de coordenadas por arquivo.
-- Símbolos químicos reais; não aceita átomos fictícios.
+| Campo | Valor inicial |
+|---|---|
+| Método | `B3LYP` |
+| Base | `6-31G(d)` |
+| Tarefa | `Opt` |
+| Carga | `0` |
+| Multiplicidade | `1` |
+| Memória | `2GB` |
+| Processadores | `2` |
 
-Uma geometria explicitamente planar, inclusive com todos os z iguais a zero, é válida. O aplicativo nunca preenche uma dimensão ausente. Inclua todos os hidrogênios necessários. A correspondência química entre XYZ e SMILES, conectividade, estereoquímica, unidades, qualidade da geometria e consistência carga/multiplicidade devem ser conferidas pelo usuário; o importador valida a estrutura dos dados, não realiza otimização nem validação física.
+São valores editáveis de exemplo. Processadores e multiplicidade devem ser pelo menos 1; memória, método, base e tarefa são obrigatórios. A geração é bloqueada quando não há geometria importada.
 
-### LOTE
+O arquivo inclui recursos, rota de cálculo, nome/SMILES, carga, multiplicidade e coordenadas com ponto decimal (`Locale.US`). A interface pede confirmação antes de substituir um destino existente.
 
-CSV UTF-8 separado por vírgulas, com colunas acessadas **pelo nome**; a ordem pode variar:
+### Lote
+
+Prepare um CSV UTF-8 separado por vírgulas:
 
 ```csv
 NUM,SMILES
@@ -75,11 +121,16 @@ NUM,SMILES
 2,c1ccccc1
 ```
 
-Selecione o CSV e uma pasta contendo `1.xyz`, `2.xyz`, etc. **Gerar GJF do lote** cria `1.gjf`, `2.gjf` nessa mesma pasta, usando a configuração atual. Registros inválidos ou sem geometria falham individualmente e aparecem na tabela e no log. O resumo mostra processados, gerados e falhas. Arquivos GJF existentes não são sobrescritos pelo lote.
+1. Clique em **Selecionar CSV**. As colunas são lidas pelo nome, independentemente da ordem.
+2. Clique em **Selecionar pasta** e escolha a pasta com `1.xyz`, `2.xyz`, etc.
+3. Use **Gerar GJF do lote** para produzir `1.gjf`, `2.gjf` na mesma pasta, com a configuração atual.
+4. Use **Gerar BCF** para listar os GJF da pasta em um arquivo de controle de lote.
 
-NUM aceita letras, números, hífen e sublinhado; valores repetidos, inclusive variações de maiúsculas, são rejeitados para evitar colisões. Erros estruturais que impossibilitam interpretar o CSV, como aspas não fechadas, interrompem a importação com mensagem.
+A tabela informa o status individual; o resumo mostra processados, gerados e falhas. Registros inválidos ou sem geometria não impedem os demais. O lote não sobrescreve GJFs existentes.
 
-**Gerar BCF** inclui apenas arquivos regulares `.gjf`, ordenados pelo nome, com cabeçalho:
+`NUM` aceita letras ASCII, números, hífen e sublinhado; duplicatas são rejeitadas sem distinção entre maiúsculas e minúsculas. Um CSV estruturalmente ilegível, por exemplo com aspas não fechadas, interrompe a importação.
+
+O BCF inclui apenas arquivos regulares `.gjf`, ordenados pelo nome, e começa com:
 
 ```text
 !
@@ -88,97 +139,150 @@ NUM aceita letras, números, hífen e sublinhado; valores repetidos, inclusive v
 !
 ```
 
-Cada entrada contém caminho GJF e caminho OUT separados por vírgula. Os caminhos são montados com `Path.resolve`. Caminhos com vírgula ou quebra de linha são rejeitados. O BCF usa caminhos absolutos do computador em que foi gerado; regenere-o após mover a pasta. A execução no Gaussian licenciado não foi validada neste ambiente.
+Cada entrada contém caminhos GJF e OUT separados por vírgula, construídos com `Path.resolve`. Caminhos com vírgulas ou quebras de linha são rejeitados. Como os caminhos gravados são absolutos, regenere o BCF após mover a pasta. Referência do formato: [tutorial Gaussian do Barrett Research Group](https://barrett-group.mcgill.ca/tutorials/Gaussian%20tutorial.pdf).
 
-### ANÁLISE
+### Análise
 
-1. Clique **Selecionar OUT** e escolha um ou mais arquivos `.out`, `.log` ou `.txt`.
-2. Clique **Analisar arquivos**. Os resultados são acrescentados à tabela; arquivos inválidos são detalhados no LOG.
-3. Use **Exportar CSV** ou **Exportar relatório HTML**.
+Clique em **Selecionar OUT**, escolha um ou mais arquivos `.out`, `.log` ou `.txt` e pressione **Analisar arquivos**. A tabela apresenta:
 
-Exemplo disponível: `src/test/resources/gaussian_sample.out`, uma amostra **sintética** pequena.
+| Coluna | Conteúdo |
+|---|---|
+| Arquivo | Origem do resultado |
+| HOMO (Hartree) | Energia do último orbital ocupado |
+| LUMO (Hartree) | Energia do primeiro orbital virtual correspondente |
+| Gap (Hartree) | Diferença LUMO − HOMO |
+| Gap (eV) | Diferença convertida para elétron-volts |
 
-| HOMO | LUMO | Gap Hartree | Gap eV |
-|---|---|---|---|
-| -0.250000 | -0.050000 | 0.200000 | 5.4422772491976 |
+Os resultados são acrescentados à tabela. Falhas de um arquivo são registradas no Log e não interrompem os demais.
 
-O parser preserva a leitura linha por linha com `BufferedReader`, em ISO-8859-1, e guarda o último par Alpha completo. Usa o último ocupado e o primeiro virtual correspondente, inclusive quando há várias linhas. Um bloco ocupado incompleto ao final não substitui um par anterior completo. Sem qualquer par completo, lança `GaussianParseException`. Valores inválidos também são rejeitados; problemas reais de arquivo usam `IOException`.
+**Exportar CSV** grava `arquivo,HOMO,LUMO,gapHartree,gapEv`, com ponto decimal e escape de campos pelo Commons CSV. **Exportar relatório HTML** permite incluir observações e gera um documento que abre diretamente no navegador, sem servidor.
+
+O HTML contém data, origem, resultados e configuração atual da interface, com textos escapados. Essa configuração é uma referência para gerar entradas: **não é extraída dos arquivos OUT** nem comprova os parâmetros dos cálculos analisados. Na implementação atual, ambas as exportações passam pela validação dos campos de configuração.
+
+### Log
+
+Registra horário, operação, arquivo ou identificador e resultado, incluindo mensagens de erro. Durante operações em segundo plano, os botões ficam desabilitados e o status indica atividade; são habilitados novamente ao concluir. O usuário recebe mensagens de erro, sem stack trace bruto.
+
+## Como funciona o parser HOMO/LUMO
+
+`GaussianOutputParser` usa `BufferedReader`, com codificação ISO-8859-1, para ler o arquivo **linha por linha**, sem carregar todo o conteúdo na memória. Ele procura:
+
+```text
+Alpha  occ. eigenvalues --
+Alpha virt. eigenvalues --
+```
+
+A cada linha ocupada, atualiza o HOMO temporário com o **último valor**. Na primeira linha virtual correspondente, usa o **primeiro valor** como LUMO e guarda o par completo. Linhas virtuais de continuação não substituem esse LUMO.
+
+O resultado é o **último par Alpha completo** encontrado. Um bloco ocupado incompleto no final não substitui um par anterior completo. Se nenhum par completo existir, lança `GaussianParseException`; valores inválidos também são rejeitados. Problemas reais de arquivo usam `IOException`.
+
+`OrbitalResult` calcula:
 
 ```text
 gapHartree = LUMO - HOMO
 gapEv = gapHartree * 27.211386245988
 ```
 
-O CSV contém `arquivo,HOMO,LUMO,gapHartree,gapEv`, com ponto decimal e escape de campos via Commons CSV. O HTML é autocontido, abre diretamente no navegador e contém data, origem, energias, observações e configuração atual da interface. Textos são escapados. A configuração exibida é identificada como referência da interface, **não como informação extraída do OUT**.
+A versão atual trata apenas orbitais **Alpha**, sem interpretação Beta.
 
-### LOG e responsividade
+## Melhorias em relação ao código Python original
 
-O log mostra horário, operação, arquivo e resultado/erro. Leitura, desenho, geração e exportação usam `SwingWorker`; os botões ficam desabilitados durante a operação e o status mostra atividade. Erros não apresentam stack traces ao usuário.
+O repositório não inclui o código Python original para uma comparação direta. Os pontos abaixo descrevem recursos confirmados na adaptação Java, sem afirmar que todos estavam ausentes no original:
 
-## Testar e empacotar
+- Leitura do OUT linha por linha, evitando manter uma cópia integral do arquivo em memória e reduzindo essa necessidade de armazenamento em relação à leitura integral.
+- Tratamento explícito de arquivos, SMILES, coordenadas e configurações inválidos.
+- Cálculo automático do gap e conversão para eV.
+- Organização orientada a objetos, com dados, serviços, arquivos e interface separados.
+- Interface gráfica Swing, exportação de resultados e testes automatizados.
+
+Não há benchmark no projeto; portanto, não se afirma que a implementação Java seja mais rápida.
+
+## Exemplo de resultado
+
+A amostra **sintética** [gaussian_sample.out](src/test/resources/gaussian_sample.out), utilizada pelos testes, produz:
+
+```text
+HOMO = -0.250000 Hartree
+LUMO = -0.050000 Hartree
+Gap  =  0.200000 Hartree
+Gap  ≈  5.442277 eV
+```
+
+## Testes
+
+Execute:
 
 ```sh
 mvn test
+```
+
+No Windows, também é possível usar `.\run.ps1 -Test`.
+
+| Classe de teste | Cobertura |
+|---|---|
+| `GaussianOutputParserTest` | Valores conhecidos, último par completo, múltiplas linhas, bloco incompleto, dados ausentes/inválidos, arquivo inexistente e conversão para eV |
+| `SmilesServiceTest` | CCO, molécula aromática, desenho 2D e SMILES inválido/vazio |
+| `CoordinatesAndInputTest` | XYZ, coordenadas ausentes/não finitas, geometria planar, bloqueio sem geometria e formato GJF com ponto decimal |
+| `BatchTest` | CSV por nome de coluna, validação individual, duplicatas, geração em lote, proteção contra sobrescrita e ordenação/filtro BCF |
+| `ModelAndAnalysisTest` | Configuração, imutabilidade dos átomos e continuidade da análise após erro |
+| `ReportTest` | Exportação CSV, valores numéricos, escape HTML e falha de gravação |
+| `SwingSmokeTest` | Inicialização de App, cinco abas, CCO, diálogo de SMILES inválido e recuperação da interface |
+
+As comparações numéricas usam tolerância `1e-8`. Os relatórios Maven locais consultados em `target/surefire-reports/` registram **29 testes, sem falhas, erros ou pulos**, na execução anterior. Essa evidência não representa uma nova execução nesta revisão documental.
+
+O smoke test requer ambiente gráfico e é explicitamente pulado em modo headless. Ele salva `target/swing-smoke.png`. Os testes não automatizam todos os diálogos de seleção nem executam Gaussian ou verificam o relatório em navegador.
+
+## Empacotamento
+
+```sh
 mvn package
 ```
 
-Alternativa Windows: `.\run.ps1 -Test`.
+O artefato gerado é `target/chemest-java-1.0-SNAPSHOT.jar`. O `pom.xml` produz um **JAR comum, sem dependências embutidas**, e não configura um JAR executável autossuficiente. Use o IntelliJ ou `mvn compile exec:java` para iniciar a aplicação.
 
-Os testes JUnit cobrem parser original, último par completo, ausência/incompletude, valores conhecidos e conversão com tolerância `1e-8`; SMILES válido/aromático/inválido; validação de modelos; XYZ, bloqueio sem geometria e formato GJF; CSV/lote/BCF; relatório HTML e exportação CSV; continuidade de análise após falha.
+## Limitações
 
-O smoke test Swing inicia `App`, valida CCO, exercita o diálogo de SMILES inválido e confirma recuperação. Em ambientes sem display, apenas esse teste é pulado explicitamente. Ele grava uma imagem de verificação em `target/swing-smoke.png`, ignorada pelo Git.
+- Apenas blocos Alpha de saídas Gaussian; sem suporte Beta ou interpretação de saídas PySCF.
+- Sem execução direta de Gaussian ou PySCF e sem implementação de DFT/Hartree-Fock.
+- XYZ precisa ser fornecido; não há geração ou otimização de geometria a partir do SMILES.
+- Sem validação física da geometria, conectividade, estereoquímica, correspondência XYZ/SMILES, unidades ou consistência carga/multiplicidade.
+- Não verifica disponibilidade de método/base no Gaussian, convergência ou término normal do cálculo.
+- Importação SDF e busca PubChem, previstas como possibilidades opcionais no roteiro, **não estão implementadas**.
+- BCF é gerado e possui testes estruturais; sua execução em Gaussian licenciado **não foi validada**.
+- Resultados e log permanecem em memória durante a sessão; exporte os resultados antes de fechar.
 
-`mvn package` gera `target/chemest-java-1.0-SNAPSHOT.jar`. É um JAR comum, sem dependências embutidas; execute pelo IntelliJ ou por `mvn compile exec:java`.
+## Interface web experimental
 
-## Arquitetura
-
-```text
-br.edu.unit.chemest
-├── App
-├── model         Atom3D, MoleculeRecord, CalculationConfig, OrbitalResult, AnalysisRecord
-├── service       SmilesService, CoordinateProvider, FileCoordinateProvider,
-│                 BatchGenerationService, AnalysisService e exceções
-├── io            CsvMoleculeReader, GaussianInputWriter, GaussianBatchWriter,
-│                 GaussianOutputParser, ResultCsvWriter, GaussianParseException
-├── report        HtmlReportWriter, ReportWriteException
-├── ui            MainFrame
-└── experimental  LocalServer
-```
-
-Modelos guardam dados e invariantes; serviços conduzem o fluxo; IO trata arquivos; relatório formata a saída; Swing coleta entradas e apresenta resultados. A lógica científica não fica no JFrame.
-
-## Interface web preservada
-
-A interface HTML/CSS/JavaScript original continua como extra experimental:
+A interface HTML/CSS/JavaScript foi preservada em `src/main/resources/web/`, com `LocalServer` no pacote `experimental`. **Swing é a interface principal.** O modo web oferece a análise HOMO/LUMO, enquanto o relatório HTML é uma saída independente.
 
 ```sh
-mvn compile exec:java -Dexec.args=--web
+mvn compile exec:java "-Dexec.args=--web"
 ```
 
-Ou `.\run.ps1 -Web`. O servidor local usa 127.0.0.1 e porta disponível. Para encerrar, pare a execução Java. O upload continua em fluxo para um arquivo temporário, removido após a análise, e agora usa o mesmo GaussianOutputParser. Swing é a interface principal; o relatório HTML é uma saída independente.
+No PowerShell: `.\run.ps1 -Web`. O suporte ao argumento `--web` está implementado em `App`.
 
-## Limitações e itens opcionais
+O servidor usa `127.0.0.1` e uma porta disponível; tenta abrir o navegador e informa o endereço no terminal. O upload é gravado em fluxo em arquivo temporário, analisado pelo mesmo parser e removido ao final. Encerre a execução Java para parar o servidor.
 
-- Apenas orbitais Alpha; sem interpretação Beta, TD-DFT ou saídas PySCF.
-- Não verifica convergência, término normal ou completude física do cálculo.
-- Não executa programas quânticos nem inclui arquivos licenciados Gaussian.
-- Geometria: XYZ explícito. Importação SDF e busca PubChem ficam como extensões opcionais não implementadas.
-- Não gera ou otimiza coordenadas a partir do SMILES.
-- Não confere se o XYZ corresponde ao SMILES nem se o método/base está instalado no Gaussian.
-- Resultados e log ficam em memória até fechar; exporte o que desejar conservar.
-- BCF gerado e testado estruturalmente, sem execução no Gaussian.
-- Os testes de exportação validam arquivos gerados; não automatizam o navegador nem todos os diálogos de seleção de arquivos.
+## Organização acadêmica
 
-## Higiene do repositório
+A separação entre `model`, `service`, `io`, `report` e `ui` segue o roteiro da faculdade e facilita a leitura, manutenção e verificação por testes. A interface coleta dados e apresenta resultados; o pareamento HOMO/LUMO fica no parser, e as fórmulas do gap ficam no modelo `OrbitalResult`.
 
-`target/`, arquivos temporários, configurações IDE e arquivos locais de ambiente estão ignorados. Não inclua senhas, tokens, chaves ou dados licenciados.
+## Segurança e higiene do repositório
 
-A pasta `.idea` **já estava versionada** antes desta migração. O .gitignore não remove arquivos previamente rastreados. Recomenda-se executar `git rm --cached -r .idea` em uma alteração própria para retirar do Git **sem apagar as configurações locais**. Essa remoção do índice não foi executada; a alteração local de `.idea/workspace.xml` foi preservada.
+- `target/`, arquivos temporários e configurações locais estão ignorados.
+- **A pasta `.idea` foi removida do controle de versão e permanece ignorada pelo `.gitignore`.** Nenhum arquivo dela está atualmente rastreado; configurações locais podem continuar no computador.
+- Não inclua senhas, tokens, chaves, arquivos privados de ambiente ou arquivos licenciados do Gaussian.
+- Evite caminhos pessoais fixos no código e na documentação. O aplicativo recebe caminhos pelo seletor de arquivos; o BCF registra os caminhos do lote escolhido.
 
-O inventário e a análise da migração estão em [docs/MIGRATION.md](docs/MIGRATION.md).
+O documento de migração registra o estado histórico da IDE. O estado atual do Git é o descrito nesta seção.
 
-## Referências de implementação
+## Referência do artigo
 
-- [CDK DepictionGenerator](https://cdk.github.io/cdk/latest/docs/api/org/openscience/cdk/depict/DepictionGenerator.html)
-- [Apache Commons CSV](https://commons.apache.org/proper/commons-csv/apidocs/org/apache/commons/csv/CSVFormat.html)
-- [Tutorial Gaussian do Barrett Research Group, seção BCF](https://barrett-group.mcgill.ca/tutorials/Gaussian%20tutorial.pdf)
+Han, D.; Han, H.; Chen, E.; Cesarski, W. J.; Lim, H.; Shin, H.; Cowart, S. V.; Nagelli, E. A.; Yuk, S. F.; Jeong, K.
+*Integrating Electronic Structure Theory Calculations with Python and Cheminformatics Tools.*
+**Journal of Chemical Education**, 2025, **102**, 4115–4122.
+DOI: [10.1021/acs.jchemed.4c01171](https://doi.org/10.1021/acs.jchemed.4c01171).
+
+## Observação final
+
+Este projeto tem finalidade acadêmica. Java atua como camada de preparação, organização e análise de dados; Gaussian/PySCF são ferramentas externas responsáveis pelo cálculo científico.
